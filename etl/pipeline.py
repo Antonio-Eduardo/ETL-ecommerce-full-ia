@@ -1,5 +1,13 @@
 """Orquestrador do pipeline ETL: Extract -> Transform -> Load."""
-from etl import extract, transform, load
+try:
+    from etl import extract, transform, load
+except ImportError:
+    # Permite rodar este arquivo diretamente (ex.: botão Run da IDE),
+    # quando o pacote etl/ ainda não está no sys.path.
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from etl import extract, transform, load
 
 
 def run() -> dict:
