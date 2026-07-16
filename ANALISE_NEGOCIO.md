@@ -2,6 +2,8 @@
 
 Análise feita sobre os datasets finais em `output/*.parquet` (pós-ETL). Os achados abaixo estão **rankeados por criticidade** para a tomada de decisão — do que exige ação imediata ao que é apenas complementar/exploratório. Cada item traz o número, a leitura de negócio e a fonte (dataset/coluna).
 
+Os 3 achados do rank crítico têm visualização gráfica gerada por `analise.py`, salva em `output/charts/`.
+
 ---
 
 ## 🔴 Críticos — impacto direto em receita ou risco, ação recomendada
@@ -19,6 +21,8 @@ Fonte: `fact_orders` (`delivery_delay_days`, `review_score`)
 Um atraso de mais de 7 dias derruba a nota média de ~4,3 para 1,7 — quase o pior score possível. **6,77% dos pedidos entregues chegam após o prazo estimado.** Isso é o maior alavancador identificável de satisfação do cliente nos dados: qualquer investimento em previsão de prazo mais realista ou em logística que reduza esse atraso tem retorno direto e mensurável em reputação (reviews públicos, recompra).
 **Decisão sugerida:** priorizar iniciativas de SLA de entrega (revisão da estimativa de prazo dada ao cliente e/ou performance de transportadora) acima de qualquer outra melhoria de UX.
 
+![Atraso de entrega vs. nota de review](output/charts/01_atraso_vs_review.png)
+
 ### 2. Frete representa ~14,3% do valor total pago pelo cliente
 Fonte: `fact_order_items` (`price`, `freight_value`, `total_item_value`)
 
@@ -26,12 +30,16 @@ Fonte: `fact_order_items` (`price`, `freight_value`, `total_item_value`)
 - **3,66% dos itens têm frete maior que o próprio preço do produto** — ou seja, para ~4.100 itens o cliente paga mais para transportar do que para comprar. Esse é um ponto crítico de abandono de carrinho e de percepção de preço injusto, especialmente para produtos de baixo valor.
 **Decisão sugerida:** revisar política de frete para itens de baixo ticket (frete fixo mínimo, ponto de corte de frete grátis, ou revisão de tabela por categoria/peso).
 
+![Frete desproporcional ao valor do produto](output/charts/02_frete_desproporcional.png)
+
 ### 3. Concentração extrema de receita em poucos vendedores
 Fonte: `fact_order_items` (`seller_id`, `total_item_value`)
 
 - **Os 10% dos vendedores mais fortes (309 de 3.095) concentram 66,7% de toda a receita da plataforma.**
 - Isso é um risco de dependência operacional: perda ou insatisfação de um punhado de sellers-chave afeta desproporcionalmente o negócio.
 **Decisão sugerida:** mapear os top ~50-100 vendedores e criar programa de retenção/SLA dedicado; ao mesmo tempo, investigar por que a cauda longa (90% dos sellers) gera tão pouca receita — pode indicar problema de descoberta/visibilidade na plataforma.
+
+![Concentração de receita entre vendedores (Pareto)](output/charts/03_concentracao_vendedores.png)
 
 ---
 
