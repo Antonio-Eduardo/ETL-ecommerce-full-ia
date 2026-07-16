@@ -2,9 +2,23 @@
 
 ## Visão geral
 
-**Objetivo:** transformar o conjunto de dados brutos de um marketplace brasileiro de e-commerce (estilo Olist) em datasets limpos e modelados, prontos para análise, seguindo um pipeline ETL (Extract, Transform, Load).
+**Objetivo:** este projeto tem como objetivo principal explorar o uso de **IA generativa como executora de todo o ciclo de um projeto de dados** — não apenas geração de código, mas condução ponta a ponta a partir de instruções em linguagem natural. Toda a implementação (pipeline ETL, análise exploratória, geração de gráficos e elaboração de planos de negócio) foi feita por IA generativa, orientada por **prompts complexos e estruturados** desenhados para que a IA entendesse a lógica de negócio por trás dos dados brutos — sem modelo de dados ou regras de negócio pré-definidas pelo autor — e tomasse decisões de modelagem justificadas de forma autônoma.
+
+Secundariamente, o resultado técnico do projeto é transformar o conjunto de dados brutos de um marketplace brasileiro de e-commerce (estilo Olist) em datasets limpos e modelados, prontos para análise, seguindo um pipeline ETL (Extract, Transform, Load) — e, a partir deles, gerar visualizações e um plano de negócio acionável.
 
 **Descrição dos dados:** 8 arquivos CSV em `assets/`, totalizando ~99 mil pedidos, ~112 mil itens de pedido, ~33 mil produtos, ~3 mil vendedores e ~1 milhão de registros de geolocalização. Os dados cobrem o ciclo completo de um pedido: cliente, produto, vendedor, pagamento, entrega e avaliação (review).
+
+## O que foi feito com IA generativa
+
+Todas as etapas abaixo foram executadas por um agente de IA generativa (Claude), a partir de prompts em linguagem natural que definiam objetivo e critérios de qualidade, sem especificação técnica prévia do modelo de dados:
+
+1. **Análise exploratória e entendimento de domínio** — a IA leu os 8 CSVs brutos sem contexto de negócio dado previamente, inferiu o que cada arquivo representa, identificou chaves primárias/estrangeiras, relacionamentos, inconsistências e propôs um modelo conceitual (dimensões, fatos e satélites) — documentado nas seções abaixo.
+2. **Pipeline ETL (`etl/`)** — extração, transformação (limpeza, padronização, tratamento de nulos, criação de colunas derivadas, agregações e junções) e carga, com cada decisão de transformação justificada pela própria IA (ver "Decisões de modelagem").
+3. **Prompts complexos para lógica de negócio** — a etapa de análise (`ANALISE_NEGOCIO.md`) foi conduzida por um prompt que pedia à IA para interpretar os dados processados sob a ótica de negócio, ranqueando achados por criticidade (de crítico a opcional) em vez de apenas listar estatísticas.
+4. **Geração de gráficos (`analise.py`)** — a IA selecionou quais achados mereciam visualização, escolheu o tipo de gráfico adequado a cada um (barras, curva de Pareto) e gerou as imagens em `output/charts/`.
+5. **Geração de plano de negócio (`plano_de_negocio.md`)** — a partir de cada gráfico, a IA propôs pelo menos um plano de ação concreto (diagnóstico, prazos, métrica de acompanhamento) para endereçar o problema identificado.
+
+Este README, o pipeline, as análises e os planos de negócio foram integralmente escritos pela IA; a intervenção humana se limitou a fornecer os prompts e revisar/aprovar os resultados.
 
 ## Estrutura dos arquivos
 
@@ -88,10 +102,10 @@ Validado: nenhuma linha órfã (100% de integridade referencial), nenhuma chave 
 
 ## Como executar
 
-Pré-requisitos: Python 3.10+, `pandas`, `pyarrow`.
+Pré-requisitos: Python 3.10+, `pandas`, `pyarrow`, `matplotlib`.
 
 ```bash
-pip install pandas pyarrow
+pip install pandas pyarrow matplotlib
 ```
 
 A partir da raiz do projeto:
@@ -101,3 +115,16 @@ python -m etl.pipeline
 ```
 
 Isso lê os CSVs de `assets/`, aplica todas as transformações e grava os 6 arquivos Parquet em `output/`. O script imprime a contagem de linhas/colunas de cada dataset gerado ao final.
+
+Em seguida, para gerar as visualizações dos achados críticos:
+
+```bash
+python analise.py
+```
+
+Isso lê os Parquet gerados no passo anterior e grava 3 gráficos em `output/charts/`, correspondentes aos achados críticos documentados em `ANALISE_NEGOCIO.md` e usados como base em `plano_de_negocio.md`.
+
+## Documentos gerados pela IA
+
+- **`ANALISE_NEGOCIO.md`** — achados de negócio extraídos dos dados processados, ranqueados de crítico a opcional.
+- **`plano_de_negocio.md`** — plano de ação para cada achado crítico, com gráfico, diagnóstico e métrica de acompanhamento.
